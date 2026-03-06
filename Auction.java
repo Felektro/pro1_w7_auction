@@ -43,6 +43,32 @@ public class Auction
         }
     }
     
+    public void close(){
+        for(Lot lot : listOfLots){
+            //System.out.println(lot.toString());
+            boolean hasABid = !(lot.getHighestBid() == null);
+            if(hasABid){
+                System.out.println(lot.getHighestBid().getBidder() + " has won this item with a bid of " + lot.getHighestBid().getValue() + " dollars!");
+            }else{
+                System.out.println("No bid was made for this item");
+            }
+        }
+    }
+    
+    public ArrayList<Lot> getUnsold(){
+        ArrayList<Lot> unsoldLots = new ArrayList<>();
+        
+        for(Lot lot : listOfLots){
+            boolean hasABid = !(lot.getHighestBid() == null);
+            if(!hasABid){
+                unsoldLots.add(lot);
+            }
+        }
+        
+        return unsoldLots;
+    }
+
+    
     /**
      * Make a bid for a lot.
      * A message is printed indicating whether the bid is successful or not.
@@ -55,8 +81,7 @@ public class Auction
     {
         Lot selectedLot = getLot(lotNumber);
         if(selectedLot != null) {
-            Bid aBid = new Bid(bidder, value);
-            boolean successful = selectedLot.bidFor(aBid);
+            boolean successful = selectedLot.bidFor(new Bid(bidder, value));
             if(successful) {
                 System.out.println("The bid for lot number " +
                                    lotNumber + " was successful.");
@@ -81,7 +106,19 @@ public class Auction
     {
         if((lotNumber >= 1) && (lotNumber < nextLotNumber)) {
             // The number seems to be reasonable.
-            Lot selectedLot = listOfLots.get(lotNumber - 1);
+            Lot selectedLot = null;
+            for(Lot lot : listOfLots){
+                if(lotNumber == lot.getNumber()){
+                     selectedLot = lot;
+                     break;
+                }
+            }
+            
+            if(selectedLot == null){
+                System.out.println("Lot number: " + lotNumber +
+                               " does not exist.");
+                return null;
+            }
             // Include a confidence check to be sure we have the
             // right lot.
             if(selectedLot.getNumber() != lotNumber) {
@@ -100,5 +137,31 @@ public class Auction
             return null;
         }
     }
+    
+        /**
+    * Remove the lot with the given lot number.
+    * @param number The number of the lot to be removed.
+    * @return The Lot with the given number, or null if
+    * there is no such lot.
+    */
+    public Lot removeLot(int number){
+        if((number >= 1) && (number < nextLotNumber)) {
+            Lot selectedLot = null;
+            for(Lot lot : listOfLots){
+                if(number == lot.getNumber()){
+                     selectedLot = lot;
+                     listOfLots.remove(lot);
+                     return selectedLot;
+                }
+            }
+            return null;
+        }
+        else {
+            System.out.println("Lot number: " + number +
+                               " does not exist.");
+            return null;
+        }
+    }
+    
 }
 
